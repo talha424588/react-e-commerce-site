@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+.nav_wrapper a
+{
+  padding-left: 10px;;
+  text-decoration: none;
+  color: azure;
+}
