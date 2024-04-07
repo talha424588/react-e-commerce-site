@@ -1,17 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, Container, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom"; // Import useHistory hook
-
+import Header from "../layout/Header";
 function Register() {
+    const navigate = useNavigate(); 
+    useEffect(()=>{
+        if(localStorage.getItem('user-info'))
+        {
+            navigate('/');
+        }
+    },[])
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigate = useNavigate(); // Initialize useHistory hook
 
     async function register(e) {
         let userData = { name, email, password };
         e.preventDefault();
-        let result = await fetch(`http://127.0.0.1:3001/api/register`, {
+        let result = await fetch(`http://127.0.0.1:8000/api/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -25,6 +31,8 @@ function Register() {
     }
 
     return (
+        <>
+        <Header/>
         <div className="my-4">
             <Container className="col-lg-4">
                 <Card>
@@ -51,6 +59,7 @@ function Register() {
                 </Card>
             </Container>
         </div>
+        </>
     );
 }
 
