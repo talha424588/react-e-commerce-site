@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, Container, Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom"; // Import useHistory hook
+import { useNavigate } from "react-router-dom";
 import Header from "../layout/Header";
 function Register() {
     const navigate = useNavigate(); 

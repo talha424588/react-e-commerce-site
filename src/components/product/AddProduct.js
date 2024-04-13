@@ -2,31 +2,33 @@ import { useEffect, useState } from "react";
 import Header from "../layout/Header";
 import { Card, Container, Form, Button } from "react-bootstrap";
 import { storage } from '../FirebaseConfig';
-
+import { useNavigate } from "react-router-dom";
 function AddProduct()
 {
+    const navigate = useNavigate();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
     const [image, setImage] = useState(null);
-    const [category, setCategory] = useState("");
+    const [category, setCategory] = useState([]);
     const [imageUrl, setImageUrl] = useState('');
 
-    useEffect(()=>{
-         fetch(`http://127.0.0.1:8000/api/get-all-category`)
-         .then((result)=>result.json())
-         .then((response)=>{
-            setCategory(response.data);
-            console.log("response",response);
-         });
-    },[]);
+    // useEffect(() => {
+    //     fetch(`http://127.0.0.1:8000/api/get-all-category`)
+    //         .then((result) => result.json())
+    //         .then((response) => {
+    //             setCategory(response);
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error fetching data:", error);
+    //         });
+    // }, []);
 
     const handleImageChange = (e) => {
         if (e.target.files[0]) {
           setImage(e.target.files[0]);
 
           uploadImageToFirebase(e.target.files[0])
-        //   const uploadTask = storage.ref(`images/${image.name}`).put(image);
           uploadImageToFirebase(e.target.files[0])
             .then((downloadURL) => {
             setImageUrl(downloadURL);
@@ -37,17 +39,6 @@ function AddProduct()
         }
         console.log('Upload',imageUrl);
       };
-    //   const uploadImageToFirebase = (file) => {
-    //     const storageRef = storage.ref();
-    //     const imageRef = storageRef.child(file.name);
-    //     imageRef.put(file).then((snapshot) => {
-    //       console.log('Image uploaded successfully!', snapshot);
-          
-    //     }).catch((error) => {
-    //       console.error('Error uploading image:', error);
-    //     });
-    //   };
-    // Function to handle image upload and return download URL
         const uploadImageToFirebase = (file) => {
             return new Promise((resolve, reject) => {
             const storageRef = storage.ref();
@@ -68,10 +59,36 @@ function AddProduct()
             });
         };
   
-    function addProduct(e){
-        e.preventDefault();
-        const data = {name:name, description:description, price:price, image:imageUrl, category:category}
-
+    async function addProduct(e) {
+    e.preventDefault();
+      const userInfo = JSON.parse(localStorage.getItem("user-info"));
+      console.log("userInfo",image)
+      const data = {
+        userId: userInfo.id,
+        name: name,
+        description: description,
+        price: price,
+        image: imageUrl,
+      };
+      try {
+        let result = await fetch(`http://127.0.0.1:8000/api/add-product`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        // console.log("result",result);
+        if (result.status === 201) {
+          console.log("Product created successfully");
+          navigate("/");
+        } else {
+          console.log("Failed to create product");
+        }
+      } catch (error) {
+        console.error("Error creating product:", error);
+      }
     }
     return (
     <>
@@ -94,13 +111,7 @@ function AddProduct()
                                 <Form.Label className="">Price</Form.Label>
                                 <Form.Control type="text" placeholder="Enter Description" value={price} onChange={(e) => setPrice(e.target.value)} />
                             </Form.Group>
-                            <Form.Select>
-                                {/* {
-                                category.map((e) => (
-                                    <option key={e.id}>{e.name}</option>
-                                ))
-                                } */}
-                            </Form.Select>
+
                             <Form.Group controlId="formBasicImage">
                                 <Form.Label className="">Image</Form.Label>
                                 <Form.Control type="file" placeholder="Choose Image" onChange={handleImageChange} />
