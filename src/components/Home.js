@@ -16,7 +16,6 @@ function Home() {
       method: "GET",
       headers: {
         Accept: "application/json",
-        // Add any other headers if needed
       },
     })
       .then((result) => {
